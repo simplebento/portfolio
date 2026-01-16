@@ -1,4 +1,4 @@
-# Ricky Lalli - Product Designer Portfolio
+# Ricky Lalli - Graphic Designer Portfolio
 
 A modern, responsive portfolio website showcasing product design work and professional experience.
 
