@@ -199,3 +199,45 @@ window.addEventListener('scroll', animateOnScroll);
 
 // Initialize animations on page load
 document.addEventListener('DOMContentLoaded', animateOnScroll); 
+
+// Custom orange cursor
+(function() {
+    const cursor = document.createElement('div');
+    cursor.className = 'custom-cursor';
+    document.body.appendChild(cursor);
+    document.body.classList.add('hide-default-cursor');
+
+    document.addEventListener('mousemove', (e) => {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+    });
+
+    // Add active effect on click
+    document.addEventListener('mousedown', () => {
+        cursor.classList.add('active');
+    });
+    document.addEventListener('mouseup', () => {
+        cursor.classList.remove('active');
+    });
+
+    // Hide cursor when leaving window - use body element for reliable detection
+    document.body.addEventListener('mouseleave', () => {
+        cursor.style.opacity = '0';
+    });
+    document.body.addEventListener('mouseenter', () => {
+        cursor.style.opacity = '1';
+    });
+    
+    // Additional check using pointer events for better cross-browser support
+    document.addEventListener('pointerleave', (e) => {
+        // Check if pointer left the viewport
+        if (!e.relatedTarget && e.pointerType === 'mouse') {
+            cursor.style.opacity = '0';
+        }
+    });
+    document.addEventListener('pointerenter', (e) => {
+        if (e.pointerType === 'mouse') {
+            cursor.style.opacity = '1';
+        }
+    });
+})(); 
