@@ -1,3 +1,60 @@
+// Password Protection
+const CORRECT_PASSWORD = 'helloworld';
+const SESSION_KEY = 'portfolio_authenticated';
+
+// Check if user is already authenticated
+function checkAuthentication() {
+    const isAuthenticated = localStorage.getItem(SESSION_KEY) === 'true';
+    if (isAuthenticated) {
+        showPortfolio();
+    } else {
+        showPasswordOverlay();
+    }
+}
+
+function showPasswordOverlay() {
+    const overlay = document.getElementById('password-overlay');
+    const mainContent = document.getElementById('main-content');
+    overlay.classList.remove('hidden');
+    mainContent.classList.remove('visible');
+}
+
+function showPortfolio() {
+    const overlay = document.getElementById('password-overlay');
+    const mainContent = document.getElementById('main-content');
+    overlay.classList.add('hidden');
+    mainContent.classList.add('visible');
+}
+
+function handlePasswordSubmit(e) {
+    e.preventDefault();
+    const passwordInput = document.getElementById('password-input');
+    const passwordError = document.getElementById('password-error');
+    const enteredPassword = passwordInput.value;
+
+    if (enteredPassword === CORRECT_PASSWORD) {
+        // Store authentication in localStorage
+        localStorage.setItem(SESSION_KEY, 'true');
+        passwordError.textContent = '';
+        passwordInput.value = '';
+        showPortfolio();
+    } else {
+        passwordError.textContent = 'Incorrect password. Please try again.';
+        passwordInput.value = '';
+        passwordInput.focus();
+    }
+}
+
+// Initialize password protection on page load
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuthentication();
+    
+    const passwordForm = document.getElementById('password-form');
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', handlePasswordSubmit);
+    }
+});
+
 // Mobile Navigation Toggle
 const hamburger = document.querySelector('.hamburger');
 const navMenu = document.querySelector('.nav-menu');
@@ -207,9 +264,28 @@ document.addEventListener('DOMContentLoaded', animateOnScroll);
     document.body.appendChild(cursor);
     document.body.classList.add('hide-default-cursor');
 
+    let isCursorVisible = true;
+
+    // Track mouse position and check viewport bounds for reliable cursor visibility
     document.addEventListener('mousemove', (e) => {
         cursor.style.left = e.clientX + 'px';
         cursor.style.top = e.clientY + 'px';
+        
+        // Check if mouse is within viewport bounds
+        const isInViewport = (
+            e.clientX >= 0 &&
+            e.clientY >= 0 &&
+            e.clientX <= window.innerWidth &&
+            e.clientY <= window.innerHeight
+        );
+        
+        if (isInViewport && !isCursorVisible) {
+            cursor.style.opacity = '1';
+            isCursorVisible = true;
+        } else if (!isInViewport && isCursorVisible) {
+            cursor.style.opacity = '0';
+            isCursorVisible = false;
+        }
     });
 
     // Add active effect on click
@@ -220,23 +296,49 @@ document.addEventListener('DOMContentLoaded', animateOnScroll);
         cursor.classList.remove('active');
     });
 
-    // Hide cursor when leaving window - use body element for reliable detection
-    document.body.addEventListener('mouseleave', () => {
-        cursor.style.opacity = '0';
-    });
-    document.body.addEventListener('mouseenter', () => {
-        cursor.style.opacity = '1';
+    // Reliable window boundary detection using pointer events
+    document.addEventListener('pointerleave', (e) => {
+        // Check if pointer left the viewport (no relatedTarget means left window)
+        if (!e.relatedTarget && e.pointerType === 'mouse') {
+            cursor.style.opacity = '0';
+            isCursorVisible = false;
+        }
     });
     
-    // Additional check using pointer events for better cross-browser support
-    document.addEventListener('pointerleave', (e) => {
-        // Check if pointer left the viewport
-        if (!e.relatedTarget && e.pointerType === 'mouse') {
+    document.addEventListener('pointerenter', (e) => {
+        if (e.pointerType === 'mouse') {
+            cursor.style.opacity = '1';
+            isCursorVisible = true;
+        }
+    });
+    
+    // Fallback: hide cursor when mouse leaves document
+    document.addEventListener('mouseout', (e) => {
+        // If mouseout target is document or html, cursor left the window
+        if (!e.relatedTarget || e.relatedTarget.nodeName === 'HTML') {
+            cursor.style.opacity = '0';
+            isCursorVisible = false;
+        }
+    });
+    
+    document.addEventListener('mouseover', (e) => {
+        // Show cursor when mouse re-enters document
+        if (e.target && isCursorVisible === false) {
+            cursor.style.opacity = '1';
+            isCursorVisible = true;
+        }
+    });
+    
+    // Hide custom cursor when hovering over form inputs, textareas, and buttons
+    // Use event delegation to work with dynamically added elements
+    document.addEventListener('mouseover', (e) => {
+        if (e.target.matches('input, textarea, button, select')) {
             cursor.style.opacity = '0';
         }
     });
-    document.addEventListener('pointerenter', (e) => {
-        if (e.pointerType === 'mouse') {
+    
+    document.addEventListener('mouseout', (e) => {
+        if (e.target.matches('input, textarea, button, select')) {
             cursor.style.opacity = '1';
         }
     });

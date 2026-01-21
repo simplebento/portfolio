@@ -11,6 +11,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Password Protection Overlay -->
+    <div id="password-overlay" class="password-overlay">
+        <div class="password-container">
+            <h2>Portfolio Access</h2>
+            <p>Please enter the password to view this portfolio</p>
+            <form id="password-form" class="password-form">
+                <input type="password" id="password-input" placeholder="Enter password" autofocus>
+                <p id="password-error" class="password-error"></p>
+                <button type="submit" class="btn btn-primary">Enter</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content (hidden until password is entered) -->
+    <div id="main-content" class="main-content-hidden">
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
@@ -249,6 +264,7 @@
             </div>
         </div>
     </footer>
+    </div>
 
     <script src="script.js"></script>
 </body>
